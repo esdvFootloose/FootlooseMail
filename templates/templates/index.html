@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block body %}
+Welcome to the Footloose Mail system.
+{% if user.authenticated %}
+Use the menu above to start.
+{% else %}
+Please login to start.
+{% endif %}
+{% endblock %}

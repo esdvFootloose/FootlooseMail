@@ -1,0 +1,117 @@
+{% load staticfiles %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="shortcut icon" type="image/png" href="{% static "/favicon.ico"%}" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Footloose Mail System</title>
+    {% block head %}
+    <link href="{% static "css/metro.min.css" %}" rel="stylesheet">
+    <link href="{% static "css/metro-icons.min.css" %}" rel="stylesheet">
+    <link href="{% static "css/metro-responsive.min.css" %}" rel="stylesheet">
+    <link href="{% static "css/metro-schemes.min.css" %}" rel="stylesheet">
+    <link href="{% static "css/custom.css" %}" rel="stylesheet">
+    {% block stylesheets %}
+
+    {% endblock %}
+    {% endblock %}
+</head>
+<body {% block bodytag %}  {%endblock %}>
+<div id="wrapper">
+
+{% block menu %}
+<div class="app-bar red" data-role="appbar">
+<div class="app-bar-element branding">FootlooseMail</div>
+
+<ul class="app-bar-menu">
+    <li><a href="/"><span class="mif-home icon"></span>Home</a></li>
+    {% if user.is_authenticated %}
+
+        {% if user.is_superuser %}
+            <li>
+                <a href="" class="dropdown-toggle"></span>GodPowers</a>
+                <ul class="d-menu" data-role="dropdown">
+                    <li><a href="/admin/">Django admin</a></li>
+                </ul>
+            </li>
+        {% endif %}
+    {% endif %}
+    <li><a href="{% url 'index:about' %}"><span class="mif-info icon"></span>About</a></li>
+</ul>
+<div class="app-bar-pullbutton automatic"></div>
+<ul class="app-bar-menu place-right" data-flexdirection="reverse">
+    {%  if user.is_authenticated %}
+    <li><a href="{% url 'index:profile' %}"><span class="mif-user icon"></span>{{ user }} Profile</a></li>
+    <li><a href="{%  url 'index:logout' %}"><span class="mif-vpn-lock icon"></span>Logout</a></li>
+    {%  else %}
+    <li><a href="{% url 'index:login' %}"><span class="mif-vpn-lock icon"></span>Login</a></li>
+    {%  endif %}
+</ul>
+</div>
+{% endblock %}
+<div id="content">
+<div class="grid">
+    <div class="row cells5">
+        {% block header %}
+
+        {% endblock %}
+    </div>
+    <div class="row cells5">
+{#        <div class="cell colspan4" id="cellContent">#}
+            {% block body %}
+                {% if Message %}
+                {% autoescape off %}
+                <p>{{ Message }}</p>
+                {% endautoescape %}
+                {% endif %}
+                {%  if return %}
+                    {% if returnget %}
+                        <a href="{% url return returnget %}">
+                    {% else %}
+                        <a href="{% url return %}">
+                    {% endif %}
+                    <button class="button primary">Return</button></a>
+                {% endif %}
+            {%  endblock %}
+{#        </div>#}
+{#        <div class="cell" id="cellSidebar">#}
+{#        {% if user.is_impersonate %}#}
+{#            <p>#}
+{#            <strong>Impersonating user {{ request.user }} as {{ request.impersonator }}</strong>#}
+{#            <br/>#}
+{#            <a href="{% url 'impersonate-stop' %}" class="button primary">Stop impersonating</a>#}
+{#            </p>#}
+{#        {% endif %}#}
+{##}
+{#        </div>#}
+    </div>
+    <div class="row cells5">
+        {% block footer %}
+
+        {% endblock %}
+    </div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div class="place-left">
+
+</div>
+<div class="place-right text-small">
+    <div class="cell place-left padding10"><a href="http://www.djangoproject.com/"><img src="https://www.djangoproject.com/m/img/badges/djangosite80x15_grey.gif" border="0" alt="A Django site." title="A Django site." /></a></div>
+    <div class="cell place-left padding10"><a href="http://metroui.org/" title="MetroUI CSS">MetroUI CSS</a> </div>
+    <div class="cell place-left padding10" onclick="roll('li')">By: Frank Boerman 2017</div>
+    <div class="cell place-left padding10">Currently deployed: {% GetHash %}</div>
+</div>
+</div>
+{% block scripts %}
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+    <script src="{%  static "js/metro.min.js" %}"></script>
+    <script src="{% static "js/datatable.js" %}"></script>
+{% endblock %}
+</body>
+</html>

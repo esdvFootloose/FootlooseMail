@@ -1,0 +1,9 @@
+django
+django-recaptcha
+django-impersonate
+django-maintenancemode
+django-redis
+channels
+asgi_redis
+daphne
+python-dateutil

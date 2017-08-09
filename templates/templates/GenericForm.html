@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block body %}
+{% if formtitle %}
+<h1>{{ formtitle }}</h1>
+{%  endif %}
+{% if title %}
+<h1>{{ title }}</h1>
+{% endif %}
+<form action="{% if actionlink %}{%  url actionlink %}{% endif %}" method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+<table class="table" style="text-align:left;">
+{{  form.as_table }}
+<tr><td>
+    <button class="button success" type="submit">{% if buttontext %}{{ buttontext }}{% else %}Go{% endif %}</button>
+
+</td><td></td></tr>
+</table>
+</form>
+{% endblock %}
+{% block scripts %}
+{{ block.super }}
+    <script src="{%  static "js/select2.min.js" %}"></script>
+    <script type="text/javascript">
+        $(function(){
+            $(".select2-tag-enable").select2({
+                minimumResultsForSearch: 6
+            });
+        });
+    </script>
+{% endblock %}
