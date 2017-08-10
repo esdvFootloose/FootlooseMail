@@ -28,10 +28,21 @@
 <ul class="app-bar-menu">
     <li><a href="/"><span class="mif-home icon"></span>Home</a></li>
     {% if user.is_authenticated %}
-
+        {% if user.is_staff %}
+            <li><a href="{% url 'mailmember:listall' %}"><span class="mif-contacts-mail icon"></span>All Members</a> </li>
+            <li>
+                <a href="" class="dropdown-toggle"><span class="mif-mail icon"></span>Aliases</a>
+                <ul class="d-menu" data-role="dropdown">
+                    <li><a href="{% url 'mailalias:listall' %}">All</a> </li>
+                    <li><a href="#">Add</a> </li>
+                </ul>
+            </li>
+        {% else %}
+            <li><a href="{% url 'mailalias:listall' %}"><span class="mif-mail icon"></span>Aliases</a></li>
+        {% endif %}
         {% if user.is_superuser %}
             <li>
-                <a href="" class="dropdown-toggle"></span>GodPowers</a>
+                <a href="" class="dropdown-toggle">GodPowers</a>
                 <ul class="d-menu" data-role="dropdown">
                     <li><a href="/admin/">Django admin</a></li>
                 </ul>
@@ -75,17 +86,6 @@
                     <button class="button primary">Return</button></a>
                 {% endif %}
             {%  endblock %}
-{#        </div>#}
-{#        <div class="cell" id="cellSidebar">#}
-{#        {% if user.is_impersonate %}#}
-{#            <p>#}
-{#            <strong>Impersonating user {{ request.user }} as {{ request.impersonator }}</strong>#}
-{#            <br/>#}
-{#            <a href="{% url 'impersonate-stop' %}" class="button primary">Stop impersonating</a>#}
-{#            </p>#}
-{#        {% endif %}#}
-{##}
-{#        </div>#}
     </div>
     <div class="row cells5">
         {% block footer %}

@@ -42,12 +42,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'captcha',
-    'impersonate',
     'maintenancemode',
     'channels',
     'django_extensions',
     'debug_toolbar',
-    'mailmember.apps.MailmemberConfig'
+    'mailmember.apps.MailmemberConfig',
+    'mailalias.apps.MailaliasConfig',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -60,7 +60,6 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'impersonate.middleware.ImpersonateMiddleware',
     'maintenancemode.middleware.MaintenanceModeMiddleware',
 ]
 
@@ -116,11 +115,59 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 #cache
+# CACHES = {
+#     'default':{
+#         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+#     }
+# }
+#caches
 CACHES = {
-    'default':{
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+        "TIMEOUT":None,
+        "KEY_PREFIX":"FootlooseMail",
+    },
+    "aliasusers": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+        "TIMEOUT": 300,
+        "KEY_PREFIX": "aliasusers",
+    },
+    "useraliasses": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+        "TIMEOUT": 300,
+        "KEY_PREFIX": "useraliasses",
     }
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': './debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
 }
 
 #channels
@@ -173,9 +220,6 @@ NOCAPTCHA = True
 
 SESSION_COOKIE_AGE = 86400
 LOGIN_REDIRECT_URL = '/profile/'
-IMPERSONATE_REQUIRE_SUPERUSER = True
-IMPERSONATE_DISABLE_LOGGING = True
-MAXAGESHARELINK = 60*60*24*7
 EMAILREGEXCHECK = "(^[a-zA-Z0-9]{1}[a-zA-Z0-9_.+-~]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
 MAINTENANCE_MODE = False
 

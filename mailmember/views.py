@@ -5,6 +5,6 @@ from .models import MailMember
 
 @staff_required
 def listMailMembers(request):
-    return render(request, 'mailmemberlist.html', {
+    return render(request, 'mailmember/mailmemberlist.html', {
         'members' : MailMember.objects.all(),
     })

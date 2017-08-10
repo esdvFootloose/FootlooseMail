@@ -1,9 +1,12 @@
 django
 django-recaptcha
-django-impersonate
 django-maintenancemode
 django-redis
 channels
 asgi_redis
 daphne
 python-dateutil
+dill
+beautifulsoup4
+lxml
+requests

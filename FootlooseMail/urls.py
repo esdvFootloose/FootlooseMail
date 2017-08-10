@@ -19,10 +19,10 @@ from django.contrib import admin
 from django.conf import settings
 
 urlpatterns = [
-    url(r'^impersonate/', include('impersonate.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^', include('index.urls')),
     url(r'^mailmember/', include('mailmember.urls')),
+    url(r'^mailalias/', include('mailalias.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler404 = 'index.views.error404'

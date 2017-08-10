@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<h1>All Aliases</h1>
+{% if user.is_staff %}
+    <a href="{% url 'mailalias:refetch' %}" class="button info">Refetch</a>
+    <a href="{% url 'mailalias:clearcache' %}" class="button danger">Clear Cache</a>
+{% endif %}
+<table class="table bordered hovered striped datatable">
+<thead>
+<tr>
+    <th>Alias</th>
+    <th>Name</th>
+    <th>Email</th>
+    {% if user.is_staff %}
+    <th>Action</th>
+    {% endif %}
+</tr>
+</thead>
+<tbody>
+{% for alias in aliases %}
+    {% for member in alias.1 %}
+        <tr>
+            <td style="width:20%;">{{ alias.0 }}</td>
+            <td></td>
+            <td style="width:20%;">{{ member }}</td>
+            {% if user.is_staff %}
+                <td><a href="#" class="button danger rounded">Remove</a></td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}
+
+{% block scripts %}
+   {{ block.super }}
+    <script>
+        $(document).ready(function () {
+            var cols = [
+                null,
+                null,
+                null,
+                {% if user.is_staff %}
+                {"searchable": false, "sortable": false}
+                {% endif %}
+            ];
+            MPDataTable(cols, [0]);
+        });
+
+    </script>
+
+{% endblock %}

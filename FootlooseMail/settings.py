@@ -42,10 +42,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'captcha',
-    'impersonate',
     'maintenancemode',
     'channels',
-    'mailmember.apps.MailmemberConfig'
+    'mailmember.apps.MailmemberConfig',
+    'mailalias.apps.MailaliasConfig',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -57,7 +57,6 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'impersonate.middleware.ImpersonateMiddleware',
     'maintenancemode.middleware.MaintenanceModeMiddleware',
 ]
 
@@ -125,7 +124,25 @@ CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
         "TIMEOUT":None,
-        "KEY_PREFIX":"FootlooseMaildev",
+        "KEY_PREFIX":"FootlooseMail",
+    },
+    "aliasusers": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+        "TIMEOUT": 300,
+        "KEY_PREFIX": "aliasusers",
+    },
+    "useraliasses": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+        "TIMEOUT": 300,
+        "KEY_PREFIX": "useraliasses",
     }
 }
 
