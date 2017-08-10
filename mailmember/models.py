@@ -19,7 +19,7 @@ class MailMember(models.Model):
     Institute = models.CharField(max_length=256, blank=True, default='')
     Student = models.BooleanField()
     City = models.CharField(max_length=256)
-    PostalCode = models.CharField(max_length=6)
+    PostalCode = models.CharField(max_length=32)
     Address = models.CharField(max_length=256)
     Gender = models.IntegerField(choices=gender_options, validators=[MinValueValidator(0), MaxValueValidator(1)])
 
