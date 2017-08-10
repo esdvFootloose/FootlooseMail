@@ -34,7 +34,7 @@
                 <a href="" class="dropdown-toggle"><span class="mif-mail icon"></span>Aliases</a>
                 <ul class="d-menu" data-role="dropdown">
                     <li><a href="{% url 'mailalias:listall' %}">All</a> </li>
-                    <li><a href="#">Add</a> </li>
+                    <li><a href="{% url 'mailalias:adduser' %}">Add</a> </li>
                 </ul>
             </li>
         {% else %}

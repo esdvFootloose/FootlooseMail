@@ -58,6 +58,9 @@ def FetchData():
     else:
         session = pickle.loads(session)
 
+    aliasusers.clear()
+    useraliasses.clear()
+
     r = session.get(cpanelurl + security_token + mailpanel)
     #TODO: communicate this to the user somehow
     #TODO: maybe try relogin after failure?
@@ -128,11 +131,7 @@ def AddToAlias(email, alias, refetchafter=True):
 
 
 def RemoveFromAlias(email, alias, refetchafter=True):
-    aliasusers = caches["aliasusers"]
     default = caches["default"]
-
-    if email not in aliasusers.get(alias, []):
-        return -1
 
     session = default.get('cpanelsession')
     security_token = default.get('security_token')
