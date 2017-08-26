@@ -13,6 +13,7 @@
     <th>Name</th>
     <th>Email</th>
     {% if user.is_staff %}
+    <th>Protected</th>
     <th>Action</th>
     {% endif %}
 </tr>
@@ -25,7 +26,23 @@
             <td></td>
             <td style="width:20%;">{{ member }}</td>
             {% if user.is_staff %}
-                <td><a href="{% url 'mailalias:deleteuser' alias.0 member %}" class="button danger rounded">Remove</a></td>
+                <td><span class="mif-{{ alias.2|yesno:"checkmark fg-green,cross fg-red" }}"></span></td>
+                <td>
+                {% if user.is_superuser or request.user in alias.2.Owners.all %}
+                <a href="{% url 'mailalias:deleteuser' alias.0 member %}" class="button danger rounded">Remove</a>
+                {% endif %}
+            {% if user.is_superuser %}
+                {% if alias.2 %}
+                    <a href="{% url 'mailalias:editprotected' alias.2.pk %}" class="button warning rounded">Protect</a>
+                {% else %}
+                    <a href="{% url 'mailalias:createprotected' alias.0 %}" class="button warning rounded">Protect</a>
+                {% endif %}
+            {% else %}
+                {% if not alias.2  %}
+                <a href="{% url 'mailalias:deleteuser' alias.0 member %}" class="button danger rounded">Remove</a>
+                {% endif %}
+            {% endif %}
+                </td>
             {% endif %}
         </tr>
     {% endfor %}
@@ -43,6 +60,7 @@
                 null,
                 null,
                 {% if user.is_staff %}
+                {"searchable": false, "sortable": false},
                 {"searchable": false, "sortable": false}
                 {% endif %}
             ];

@@ -1,3 +1,9 @@
 from django.db import models
+from django.contrib.auth.models import User
 
-#Everything is loaded in redis cache, so no persistent models are needed
+class ProtectedAlias(models.Model):
+    Alias = models.CharField(max_length=512)
+    Owners = models.ManyToManyField(User, related_name='aliases')
+
+    def __str__(self):
+        return self.Alias
