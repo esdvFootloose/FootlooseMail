@@ -7,6 +7,7 @@ from . import forms
 from .models import ProtectedAlias
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from tracking.models import AliasChange
 
 @login_required
 def listMailAlias(request):
@@ -73,6 +74,13 @@ def addUserToAlias(request):
                     'Message' : 'Something went wrong, responsecode: {}'.format(response)
                 })
             else:
+                tracking = AliasChange()
+                tracking.User = request.user
+                tracking.Type = 'a'
+                tracking.Alias = form.cleaned_data['alias']
+                tracking.Email = form.cleaned_data['mailmember'].Email
+                tracking.save()
+
                 return render(request, 'base.html', {
                     'Message' : 'User {} with email {} added to {}'.format(form.cleaned_data['mailmember'],
                                                                            form.cleaned_data['mailmember'].Email,
@@ -114,6 +122,12 @@ def deleteUserFromAlias(request, email, alias):
             'Message': 'Something went wrong, responsecode: {}'.format(response)
         })
     else:
+        tracking = AliasChange()
+        tracking.User = request.user
+        tracking.Type = 'd'
+        tracking.Alias = alias
+        tracking.Email = email
+        tracking.save()
         return render(request, 'base.html', {
             'Message': 'Email {} removed from {}'.format(email, alias)
         })

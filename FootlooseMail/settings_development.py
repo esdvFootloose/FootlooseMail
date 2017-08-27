@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'mailmember.apps.MailmemberConfig',
     'mailalias.apps.MailaliasConfig',
+    'tracking.apps.TrackingConfig',
 ]
 
 MIDDLEWARE_CLASSES = [

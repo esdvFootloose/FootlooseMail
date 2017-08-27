@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block body %}
 Welcome to the Footloose Mail system.
-{% if user.authenticated %}
+{% if user.is_authenticated %}
 Use the menu above to start.
 {% else %}
 Please login to start.

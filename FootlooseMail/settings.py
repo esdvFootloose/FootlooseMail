@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'channels',
     'mailmember.apps.MailmemberConfig',
     'mailalias.apps.MailaliasConfig',
+    'tracking.apps.TrackingConfig',
 ]
 
 MIDDLEWARE_CLASSES = [
