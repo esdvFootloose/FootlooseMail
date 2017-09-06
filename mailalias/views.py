@@ -56,6 +56,10 @@ def addUserToAlias(request):
     if request.method == 'POST':
         form = forms.MailAliasAdd(request.POST)
         if form.is_valid():
+            if form.cleaned_data.get('mailmember') is not None:
+                email = form.cleaned_data.get('mailmember').Email
+            elif form.cleaned_data.get('email') is not None:
+                email = form.cleaned_data.get('email')
             try:
                 protected_obj = ProtectedAlias.objects.get(Alias='{}@esdvfootloose.nl'.format(form.cleaned_data['alias']))
                 if protected_obj.Owners.count() == 0:
@@ -68,7 +72,7 @@ def addUserToAlias(request):
             except ProtectedAlias.DoesNotExist:
                 pass
 
-            response = NeoStrada.AddToAlias(form.cleaned_data['mailmember'].Email, form.cleaned_data['alias'])
+            response = NeoStrada.AddToAlias(email, form.cleaned_data['alias'])
             if response != 200:
                 return render(request, 'base.html', {
                     'Message' : 'Something went wrong, responsecode: {}'.format(response)
@@ -78,12 +82,12 @@ def addUserToAlias(request):
                 tracking.User = request.user
                 tracking.Type = 'a'
                 tracking.Alias = form.cleaned_data['alias']
-                tracking.Email = form.cleaned_data['mailmember'].Email
+                tracking.Email = email
                 tracking.save()
 
                 return render(request, 'base.html', {
                     'Message' : 'User {} with email {} added to {}'.format(form.cleaned_data['mailmember'],
-                                                                           form.cleaned_data['mailmember'].Email,
+                                                                           email,
                                                                            form.cleaned_data['alias'])
                 })
     else:
