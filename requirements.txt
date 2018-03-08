@@ -1,10 +1,10 @@
-django
+django<2
 django-recaptcha
 django-maintenancemode
 django-redis
-channels
+channels<2
 asgi_redis
-daphne
+daphne<2
 python-dateutil
 dill
 beautifulsoup4
