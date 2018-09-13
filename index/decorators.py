@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 
 def group_required(*group_names):
     def in_groups(u):
-        if u.is_authenticated():
+        if u.is_authenticated:
             if u.groups.filter(name__in=group_names).count() > 0 or u.is_superuser:
                 return True
         raise PermissionDenied("Not part of required group")

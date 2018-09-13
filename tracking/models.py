@@ -10,7 +10,7 @@ class AliasChange(models.Model):
     Alias = models.CharField(max_length=512)
     Email = models.EmailField()
     Type = models.CharField(max_length=1, choices=types)
-    User = models.ForeignKey(User, related_name='aliaschanges')
+    User = models.ForeignKey(User, related_name='aliaschanges', on_delete=models.CASCADE)
     Timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

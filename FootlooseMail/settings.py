@@ -41,8 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'captcha',
-    'maintenancemode',
     'channels',
     'mailmember.apps.MailmemberConfig',
     'mailalias.apps.MailaliasConfig',
@@ -55,10 +53,9 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    # 'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'maintenancemode.middleware.MaintenanceModeMiddleware',
 ]
 
 ROOT_URLCONF = 'FootlooseMail.urls'
@@ -80,15 +77,12 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'FootlooseMail.wsgi.application'
-
-
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME' : 'django',
         'USER' : 'django',
         'PASSWORD' : DATABASE_PASSWORD_IMPORT,
@@ -172,14 +166,14 @@ LOGGING = {
 }
 
 
-#channels
+# channels
+ASGI_APPLICATION = 'FootlooseMail.routing.application'
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "asgi_redis.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": ["redis://127.0.0.1:6379/2"],
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
         },
-        "ROUTING": "FootlooseMail.routing.channel_routing",
     },
 }
 

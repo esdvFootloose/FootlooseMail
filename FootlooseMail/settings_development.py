@@ -41,27 +41,21 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'captcha',
-    'maintenancemode',
     'channels',
-    'django_extensions',
-    'debug_toolbar',
     'mailmember.apps.MailmemberConfig',
     'mailalias.apps.MailaliasConfig',
     'tracking.apps.TrackingConfig',
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    # 'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'maintenancemode.middleware.MaintenanceModeMiddleware',
 ]
 
 ROOT_URLCONF = 'FootlooseMail.urls'
@@ -82,9 +76,6 @@ TEMPLATES = [
         },
     },
 ]
-
-WSGI_APPLICATION = 'FootlooseMail.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
@@ -171,13 +162,17 @@ LOGGING = {
     },
 }
 
-#channels
+# channels
+ASGI_APPLICATION = 'FootlooseMail.routing.application'
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "asgiref.inmemory.ChannelLayer",
-        "ROUTING": "FootlooseMail.routing.channel_routing",
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
     },
 }
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/

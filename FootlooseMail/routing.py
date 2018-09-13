@@ -1,6 +1,11 @@
-from channels.routing import route, include
+from channels.auth import AuthMiddlewareStack
+from channels.routing import ProtocolTypeRouter, URLRouter, ChannelNameRouter
 
-channel_routing = [
-    # include('tracking.routing.channel_routing', path=r'^/tracking/'),
-    # include('support.routing.channel_routing', path=r'^/support/'),
-]
+application = ProtocolTypeRouter({
+    # (http->django views is added by default)
+    'websocket': AuthMiddlewareStack(
+        URLRouter(
+            []
+        )
+    ),
+})

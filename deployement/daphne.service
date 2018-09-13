@@ -1,7 +1,7 @@
 [Unit]
-Description=daphne service to run FootlooseMail
+Description=daphne service to run footloosemail
 After=network.target
-After=postgresql.service
+After=mariadb.service
 After=nginx.service
 
 [Service]
@@ -11,7 +11,9 @@ PIDFile=/run/daphne/pid
 User=django
 Group=django
 WorkingDirectory=/home/django/FootlooseMail
-ExecStart=/usr/bin/daphne -u /tmp/daphne.sock FootlooseMail.asgi:channel_layer
+ExecStart=/home/django/footloosemailenv/bin/daphne -u /tmp/daphne.sock FootlooseMail.asgi:application
 ExecStop=/bin/kill -s TERM $MAINPID
+[Install]
+WantedBy=multi-user.target
 [Install]
 WantedBy=multi-user.target

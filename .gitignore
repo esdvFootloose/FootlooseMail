@@ -17,3 +17,5 @@ FootlooseMail/secret.py
 *.xls
 *.xlsx
 .vscode
+Pipfile
+*.lock

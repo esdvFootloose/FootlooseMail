@@ -13,11 +13,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.urls.base import  reverse
 from index.decorators import superuser_required
 from django.utils.html import strip_tags
-from django.conf import settings
 from django.core.cache import cache
-import channels
-import json
-import time
 
 def gotoNextOrHome(request):
     if 'next' in request.GET.keys():
@@ -30,7 +26,7 @@ def index(request):
 
 
 def logout(request):
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return HttpResponseRedirect('/')
     auth_logout(request)
     return render(request, "base.html", {"Message":"You are now logged out. <a href='/' title='Home'>Go back to the homepage</a>"})
@@ -130,7 +126,7 @@ def profile(request):
 
 
 def login(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return gotoNextOrHome(request)
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -148,11 +144,6 @@ def login(request):
             user = authenticate(username=userobj.username, password=form.cleaned_data['password'])
             if user is not None:
                 if user.is_active:
-                    channels.Group('livestream').send({'text':json.dumps({
-                        'time' : time.strftime('%H:%M:%S'),
-                        'event' : 'login',
-                        'user' : str(user),
-                    })})
                     auth_login(request,user)
                     return gotoNextOrHome(request)
                 else:
