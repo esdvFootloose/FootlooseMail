@@ -4,6 +4,7 @@ migrations/
 *.pyc
 *.sqlite3
 templates/static/admin/
+templates/static/channels/
 *.aux
 *.log
 *.gz

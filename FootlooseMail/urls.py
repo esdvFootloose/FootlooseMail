@@ -26,6 +26,3 @@ urlpatterns = [
     url(r'^tracking/', include('tracking.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-handler404 = 'index.views.error404'
-handler403 = 'index.views.error403'
-handler500 = 'index.views.error500'

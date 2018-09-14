@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'tracking.apps.TrackingConfig',
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -83,8 +83,8 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME' : 'django',
-        'USER' : 'django',
+        'NAME' : 'footloosemail',
+        'USER' : 'footloosemail',
         'PASSWORD' : DATABASE_PASSWORD_IMPORT,
         'HOST' : 'localhost',
         'POST' : ''
@@ -94,7 +94,7 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
-
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend', 'mailalias.auth.WordpressAuthBackend']
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -149,16 +149,16 @@ LOGGING = {
         'file': {
             'level': 'ERROR',
             'class': 'logging.FileHandler',
-            'filename': '/root/django.log',
+            'filename': '/home/django/django.log',
         },
-        'mail_admins': {
-            'level': 'ERROR',
-            'class': 'django.utils.log.AdminEmailHandler',
-        }
+#        'mail_admins': {
+#            'level': 'ERROR',
+#            'class': 'django.utils.log.AdminEmailHandler',
+#        }
     },
     'loggers': {
         'django': {
-            'handlers': ['file','mail_admins'],
+            'handlers': ['file'],
             'level': 'ERROR',
             'propagate': True,
         },
@@ -199,7 +199,7 @@ MEDIA_URL = '/media/'
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/root/FootlooseMail/templates/static/'
+STATIC_ROOT = '/home/django/FootlooseMail/templates/static/'
 
 # Host for sending e-mail.
 EMAIL_HOST = 'localhost'

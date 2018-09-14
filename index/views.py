@@ -131,17 +131,17 @@ def login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username'].lower()
-            if User.objects.filter(username=username).exists():
-                userobj = User.objects.get(username=username)
-            elif User.objects.filter(email=username).exists():
-                userobj = User.objects.get(email=username)
-            else:
-                return render(request, "base.html", {
-                    "Message": "This accountname does not exist, you can <a href=\"{}\">try again with your email</a>."
-                               "Otherwise contact the dev team at info@FootlooseMail.nl".format(reverse('index:login'))})
+            #username = form.cleaned_data['username'].lower()
+            #if User.objects.filter(username=username).exists():
+            #    userobj = User.objects.get(username=username)
+            #elif User.objects.filter(email=username).exists():
+            #    userobj = User.objects.get(email=username)
+            #else:
+            #    return render(request, "base.html", {
+            #        "Message": "This accountname does not exist, you can <a href=\"{}\">try again with your email</a>."
+            #                   "Otherwise contact the dev team at info@FootlooseMail.nl".format(reverse('index:login'))})
 
-            user = authenticate(username=userobj.username, password=form.cleaned_data['password'])
+            user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
             if user is not None:
                 if user.is_active:
                     auth_login(request,user)
@@ -151,7 +151,7 @@ def login(request):
             else:
                 return render(request, "base.html", {
                     "Message": "Login failed, incorrect password. Please <a href='" + reverse(
-                        "index:login") + "'>try again</a> or <a href='" + reverse("index:password_reset") + "'>reset your password</a>"})
+                        "index:login") + "'>try again</a>"})
     form = LoginForm()
     get = ''
     if 'next' in request.GET.keys():
@@ -159,26 +159,6 @@ def login(request):
            get = "?next="+request.GET['next']
     return render(request, "login.html", {'form': form, 'get': get})
 
-
-def error400(request):
-    return render(request, "base.html", status=400, context={
-        "Message":"Your browser send an invalid request. Please have a look at the <a href=\"/\">homepage</a>"
-    })
-
-def error404(request):
-    return render(request, "base.html", status=404, context={
-        "Message":"The page you are looking for does not exist. Please have a look at the <a href=\"/\">homepage</a>"
-    })
-
-def error403(request, exception):
-    return render(request, "403.html", status=403, context = {"exception": exception})
-
-def error500(request):
-    return render(request, "base.html", status=500, context={
-        "Message" : "Something went wrong in the server. The developer team has been automatically notified. </br>"
-                    "Please help them by sending an email to <a href=\"mailto:info@FootlooseMail.nl?subject=BugReport\">info@FootlooseMail.nl</a> with more information what you were trying to do. <br/>"
-                    "Thanks in advance!"
-    })
 
 def about(request):
     return render(request, "about.html")
