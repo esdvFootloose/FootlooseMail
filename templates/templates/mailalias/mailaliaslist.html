@@ -10,7 +10,6 @@
 <thead>
 <tr>
     <th>Alias<br/></th>
-    <th>Name</th>
     <th>Email</th>
     {% if user.is_staff %}
     <th>Protected</th>
@@ -23,7 +22,6 @@
     {% for member in alias.1 %}
         <tr>
             <td style="width:20%;">{{ alias.0 }}</td>
-            <td></td>
             <td style="width:20%;">{{ member }}</td>
             {% if user.is_staff %}
                 <td><span class="mif-{{ alias.2|yesno:"checkmark fg-green,cross fg-red" }}"></span></td>
@@ -56,7 +54,6 @@
     <script>
         $(document).ready(function () {
             var cols = [
-                null,
                 null,
                 null,
                 {% if user.is_staff %}

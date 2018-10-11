@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'channels',
-    'mailmember.apps.MailmemberConfig',
     'mailalias.apps.MailaliasConfig',
     'tracking.apps.TrackingConfig',
 ]

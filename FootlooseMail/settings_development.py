@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'channels',
-    'mailmember.apps.MailmemberConfig',
     'mailalias.apps.MailaliasConfig',
     'tracking.apps.TrackingConfig',
 ]
@@ -90,7 +89,7 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
-
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend', 'mailalias.auth.WordpressAuthBackend']
 AUTH_PASSWORD_VALIDATORS = [
     # {
     #     'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',

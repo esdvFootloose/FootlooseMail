@@ -56,8 +56,8 @@ def addUserToAlias(request):
     if request.method == 'POST':
         form = forms.MailAliasAdd(request.POST)
         if form.is_valid():
-            if form.cleaned_data.get('mailmember') is not None:
-                email = form.cleaned_data.get('mailmember').Email
+            if form.cleaned_data.get('member') is not None:
+                email = form.cleaned_data.get('member')
             elif form.cleaned_data.get('email') is not None:
                 email = form.cleaned_data.get('email')
             try:
@@ -86,9 +86,8 @@ def addUserToAlias(request):
                 tracking.save()
 
                 return render(request, 'base.html', {
-                    'Message' : 'User {} with email {} added to {}'.format(form.cleaned_data['mailmember'],
-                                                                           email,
-                                                                           form.cleaned_data['alias'])
+                    'Message' : 'email {} added to alias {}'.format(email,
+                                                                    form.cleaned_data['alias'])
                 })
     else:
         form = forms.MailAliasAdd()

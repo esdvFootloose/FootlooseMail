@@ -1,23 +1,31 @@
 from django import forms
 from templates import widgets
-from mailmember.models import MailMember
 from .models import ProtectedAlias
+from .wordpress import WordPress
 
 
 class MailAliasAdd(forms.Form):
     alias = forms.CharField(label='Alias:', widget=widgets.MetroTextInput)
-    mailmember = forms.ModelChoiceField(queryset=MailMember.objects.all(), label='user to add:', widget=widgets.MetroSelect, required=False)
+    member = forms.ChoiceField(choices=(), label='user to add:', widget=widgets.MetroSelect, required=False)
     email = forms.EmailField(label='Email to add', widget=widgets.MetroTextInput, required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        _, members = WordPress.get_students_data()
+        choices = [(None, None)]
+        for member in members:
+            choices.append((member[-1], '{} {}'.format(member[1], member[2])))
+        self.fields['member'].choices = choices
 
     def clean(self):
         cleaned_data = super().clean()
-        mailmember = cleaned_data.get('mailmember')
+        member = cleaned_data.get('member')
         email = cleaned_data.get('email')
 
-        if mailmember and email:
+        if member and email:
             #both are filled in
             raise forms.ValidationError('Please fill in only one of the two fields for email to add')
-        if mailmember is None and (email is None or email == ""):
+        if member is None and (email is None or email == ""):
             #none are filled in
             raise forms.ValidationError('Please fill in one of the fields to add email')
 
