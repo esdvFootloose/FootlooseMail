@@ -25,7 +25,7 @@ class MailAliasAdd(forms.Form):
         if member and email:
             #both are filled in
             raise forms.ValidationError('Please fill in only one of the two fields for email to add')
-        if member is None and (email is None or email == ""):
+        if (member is None or member == "") and (email is None or email == ""):
             #none are filled in
             raise forms.ValidationError('Please fill in one of the fields to add email')
 

@@ -56,9 +56,10 @@ def addUserToAlias(request):
     if request.method == 'POST':
         form = forms.MailAliasAdd(request.POST)
         if form.is_valid():
-            if form.cleaned_data.get('member') is not None:
+            email = None
+            if form.cleaned_data.get('member') != '':
                 email = form.cleaned_data.get('member')
-            elif form.cleaned_data.get('email') is not None:
+            elif form.cleaned_data.get('email') != '':
                 email = form.cleaned_data.get('email')
             try:
                 protected_obj = ProtectedAlias.objects.get(Alias='{}@esdvfootloose.nl'.format(form.cleaned_data['alias']))
