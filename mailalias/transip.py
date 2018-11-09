@@ -2,6 +2,8 @@ import requests
 import json
 from bs4 import BeautifulSoup
 from time import sleep
+from celery import group
+from mailalias.tasks import task_scrape_members_group
 
 class TransipApi:
 
@@ -42,6 +44,7 @@ class TransipApi:
 
         return self.logged_in
 
+
     def fetch_data(self):
         if not self.logged_in:
             return None
@@ -50,20 +53,22 @@ class TransipApi:
         soup_mailgroup = BeautifulSoup(r_mailgroup.text, 'lxml')
         soup_groups = soup_mailgroup.find('table').find_all('tr')
         self.groups = {}
+        tasks = []
         for row in soup_groups:
             if 'td' in str(row):
                 cells = row.find_all('td')
-                group = {
+                mail_group = {
                     'name' : cells[0].text.replace(' ','').replace('\n',''),
                     'email' : cells[1].text.replace(' ','').replace('\n',''),
                     'count' : int(cells[2].text.replace(' ','').replace('\n','')),
-                    # 'id' : cells[3].find('input', {'type':'hidden', 'name' : 'id'}).get('value'),
                     'listid' : cells[3].find('input', {'type':'hidden', 'name' : 'mailListId'}).get('value'),
                 }
-                r_mailgrouplist = self.session.get(self.MAILGROUPLISTURL.format(id=self.ID, listid=group['listid']))
-                soup_mailgrouplist = BeautifulSoup(r_mailgrouplist.text, 'lxml')
-                group['members'] = [x.get('value') for x in soup_mailgrouplist.find_all('input', {'id':'add-address'}) if x.get('value') != '']
-                self.groups[group['name']] = group
+                tasks.append(task_scrape_members_group.s(self, mail_group))
+        job = group(tasks)
+        result = job.apply_async()
+        result.join()
+        for mail_group in result.get():
+            self.groups[mail_group['name']] = mail_group
 
         return self.groups
 

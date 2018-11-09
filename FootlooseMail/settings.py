@@ -205,3 +205,11 @@ IMPERSONATE_DISABLE_LOGGING = True
 MAXAGESHARELINK = 60*60*24*7
 EMAILREGEXCHECK = "(^[a-zA-Z0-9]{1}[a-zA-Z0-9_.+-~]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
 MAINTENANCE_MODE = False
+
+# Celery settings
+BROKER_URL = 'redis://localhost:6379/5'  # our redis address
+# use json format for everything
+CELERY_ACCEPT_CONTENT = ['pickle']
+CELERY_TASK_SERIALIZER = 'pickle'
+CELERY_RESULT_SERIALIZER = 'pickle'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/5'
