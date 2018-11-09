@@ -10,6 +10,7 @@
 <thead>
 <tr>
     <th>Alias<br/></th>
+    <th>Size</th>
     <th>Email</th>
     {% if user.is_staff %}
     <th>Protected</th>
@@ -18,27 +19,30 @@
 </tr>
 </thead>
 <tbody>
-{% for alias in aliases %}
-    {% for member in alias.1 %}
+{% for alias in aliasses.values %}
+    {% for member in alias.members %}
         <tr>
-            <td style="width:20%;">{{ alias.0 }}</td>
+            <td style="width:20%;">{{ alias.name }}</td>
+            <td style="width:20%">{{ alias.count }}</td>
             <td style="width:20%;">{{ member }}</td>
             {% if user.is_staff %}
-                <td><span class="mif-{{ alias.2|yesno:"checkmark fg-green,cross fg-red" }}"></span></td>
+                <td><span class="mif-{{ alias.protected|yesno:"checkmark fg-green,cross fg-red" }}"></span></td>
                 <td>
                 {% if user.is_superuser or request.user in alias.2.Owners.all %}
-                <a href="{% url 'mailalias:deleteuser' alias.0 member %}" class="button danger rounded">Remove</a>
+                <a href="{% url 'mailalias:adduser' alias.name %}" class="button primary rounded">Edit</a>
                 {% endif %}
             {% if user.is_superuser %}
-                {% if alias.2 %}
-                    <a href="{% url 'mailalias:editprotected' alias.2.pk %}" class="button warning rounded">Protect</a>
+                {% if alias.protected %}
+                    <a href="{% url 'mailalias:editprotected' alias.protected.pk %}" class="button warning rounded">Protect</a>
                 {% else %}
-                    <a href="{% url 'mailalias:createprotected' alias.0 %}" class="button warning rounded">Protect</a>
+                    <a href="{% url 'mailalias:createprotected' alias.name %}" class="button warning rounded">Protect</a>
                 {% endif %}
-            {% else %}
-                {% if not alias.2  %}
-                <a href="{% url 'mailalias:deleteuser' alias.0 member %}" class="button danger rounded">Remove</a>
-                {% endif %}
+            {% endif %}
+            {% if not alias.protected  %}
+                <form action="{% url 'mailalias:deletealias' alias.name %}" method="POST">
+                {% csrf_token %}
+                <input type="submit" class="button danger rounded" value="Delete Alias">
+                </form>
             {% endif %}
                 </td>
             {% endif %}
@@ -54,6 +58,7 @@
     <script>
         $(document).ready(function () {
             var cols = [
+                null,
                 null,
                 null,
                 {% if user.is_staff %}

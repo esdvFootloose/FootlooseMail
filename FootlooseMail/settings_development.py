@@ -121,24 +121,6 @@ CACHES = {
         },
         "TIMEOUT":None,
         "KEY_PREFIX":"FootlooseMail",
-    },
-    "aliasusers": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
-        "TIMEOUT": 300,
-        "KEY_PREFIX": "aliasusers",
-    },
-    "useraliasses": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
-        "TIMEOUT": 300,
-        "KEY_PREFIX": "useraliasses",
     }
 }
 

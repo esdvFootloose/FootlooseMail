@@ -1,24 +1,23 @@
 from django.shortcuts import render
 from index.decorators import staff_required, superuser_required
 from django.contrib.auth.decorators import login_required
-from . import NeoStrada
-from django.core.cache import caches
+from django.core.cache import cache
 from . import forms
 from .models import ProtectedAlias
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from tracking.models import AliasChange
+from .utils import fetch_alias, get_api
+from django.views.decorators.http import require_http_methods
 
 @login_required
 def listMailAlias(request):
-    aliasusers = caches["aliasusers"]
-    useraliasses = caches["useraliasses"]
+    aliasses = fetch_alias(True)
+    if aliasses is None:
+        return render(request, 'base.html', {
+            'message': 'transip api failed'
+        })
 
-    if aliasusers.get('keys') is None or useraliasses.get('keys') is None:
-        NeoStrada.FetchData()
-
-    aliases = []
-    for alias in sorted(aliasusers.get('keys')):
+    for alias in aliasses:
         try:
             obj = ProtectedAlias.objects.get(Alias=alias)
             if obj.Owners.count() == 0:
@@ -26,15 +25,15 @@ def listMailAlias(request):
                 obj = None
         except ProtectedAlias.DoesNotExist:
             obj = None
-        aliases.append([alias.split('@')[0], aliasusers.get(alias, []), obj])
-    #TODO: add mailmember object to provide links in alias list
+        aliasses[alias]['protected'] = obj
+
     return render(request, 'mailalias/mailaliaslist.html', {
-        'aliases' : aliases
+        'aliasses' : aliasses
     })
 
 @staff_required
 def fetchData(request):
-    NeoStrada.FetchData()
+    fetch_alias(False)
     return render(request, 'base.html', {
         'Message' : 'Aliases cache (re)fetched!',
         'return' : 'mailalias:listall',
@@ -42,9 +41,7 @@ def fetchData(request):
 
 @staff_required
 def clearCache(request):
-    caches["aliasusers"].clear()
-    caches["useraliasses"].clear()
-    caches["default"].clear()
+    cache.clear()
 
     return render(request, 'base.html', {
         'Message' : 'Cache cleared!',
@@ -52,17 +49,18 @@ def clearCache(request):
     })
 
 @staff_required
-def addUserToAlias(request):
+def edit_alias(request, alias=None):
+    aliasses = fetch_alias(True)
+    if alias in aliasses:
+        members = aliasses[alias]['members']
+    else:
+        members = []
+
     if request.method == 'POST':
-        form = forms.MailAliasAdd(request.POST)
+        form = forms.MailAliasAdd(alias, members, request.POST)
         if form.is_valid():
-            email = None
-            if form.cleaned_data.get('member') != '':
-                email = form.cleaned_data.get('member')
-            elif form.cleaned_data.get('email') != '':
-                email = form.cleaned_data.get('email')
             try:
-                protected_obj = ProtectedAlias.objects.get(Alias='{}@esdvfootloose.nl'.format(form.cleaned_data['alias']))
+                protected_obj = ProtectedAlias.objects.get(Alias=form.cleaned_data['alias'])
                 if protected_obj.Owners.count() == 0:
                     protected_obj.delete()
                 if request.user not in protected_obj.Owners.all():
@@ -73,81 +71,57 @@ def addUserToAlias(request):
             except ProtectedAlias.DoesNotExist:
                 pass
 
-            response = NeoStrada.AddToAlias(email, form.cleaned_data['alias'])
-            if response != 200:
+            api = get_api()
+            newmembers = list(set(form.cleaned_data['members'] + form.cleaned_data['externals']))
+            if form.cleaned_data['new_external'] != "":
+                newmembers.append(form.cleaned_data['new_external'])
+            response = api.add_to_alias(form.cleaned_data['alias'], newmembers)
+            if not response:
                 return render(request, 'base.html', {
-                    'Message' : 'Something went wrong, responsecode: {}'.format(response)
+                    'Message' : 'Something went wrong: {}'.format(api.failure_reason)
                 })
             else:
-                tracking = AliasChange()
-                tracking.User = request.user
-                tracking.Type = 'a'
-                tracking.Alias = form.cleaned_data['alias']
-                tracking.Email = email
-                tracking.save()
+                #TODO: reenable tracking
+                # tracking = AliasChange()
+                # tracking.User = request.user
+                # tracking.Type = 'a'
+                # tracking.Alias = form.cleaned_data['alias']
+                # tracking.Email = email
+                # tracking.save()
+                cache.set('api', api, 24*60*60)
 
                 return render(request, 'base.html', {
-                    'Message' : 'email {} added to alias {}'.format(email,
-                                                                    form.cleaned_data['alias'])
+                    'Message' : 'alias {} saved'.format(form.cleaned_data['alias'])
                 })
     else:
-        form = forms.MailAliasAdd()
+        form = forms.MailAliasAdd(alias, members)
 
     return render(request, 'GenericForm.html', {
         "form" : form,
-        "formtitle" : "Add User to Alias",
-        "buttontext" : "Add"
+        "formtitle" : "Add/Edit Alias",
+        "buttontext" : "Save"
     })
 
 @staff_required
-def deleteUserFromAlias(request, email, alias):
-    aliasusers = caches["aliasusers"]
-
-    if email not in aliasusers.get('{}@esdvfootloose.nl'.format(alias), []):
+@require_http_methods(["POST"])
+def delete_alias(request, alias):
+    api = get_api()
+    if not api.delete_alias(alias):
         return render(request, 'base.html', {
-            'Message' : 'User {} is not in alias {}'.format(email, alias)
+            'Message' : 'alias {} could not be deleted: {}'.format(alias, api.failure_reason)
         })
+    cache.set('api', api, 24*60*60)
 
-    try:
-        protected_obj = ProtectedAlias.objects.get(Alias='{}@esdvfootloose.nl'.format(alias))
-        if protected_obj.Owners.count() == 0:
-            protected_obj.delete()
-        if request.user not in protected_obj.Owners.all():
-            return render(request, 'base.html', {
-                'Message' : 'Protected alias and you are not owner!',
-                'return' : 'mailalias:listall',
-            })
-    except ProtectedAlias.DoesNotExist:
-        pass
+    return render(request, 'base.html', {
+        'Message' : 'alias {} deleted'.format(alias)
+    })
 
-    response = NeoStrada.RemoveFromAlias(email, alias)
-    if response != 200:
-        return render(request, 'base.html', {
-            'Message': 'Something went wrong, responsecode: {}'.format(response)
-        })
-    else:
-        tracking = AliasChange()
-        tracking.User = request.user
-        tracking.Type = 'd'
-        tracking.Alias = alias
-        tracking.Email = email
-        tracking.save()
-        return render(request, 'base.html', {
-            'Message': 'Email {} removed from {}'.format(email, alias)
-        })
 
 @superuser_required
-def createProtected(request, alias):
-    aliasusers = caches["aliasusers"]
-    useraliasses = caches["useraliasses"]
+def create_protected(request, alias):
+    aliasses = fetch_alias(True)
 
-    if '@' not in alias:
-        alias = '{}@esdvfootloose.nl'.format(alias)
-
-    if aliasusers.get('keys') is None or useraliasses.get('keys') is None:
-        NeoStrada.FetchData()
-
-    if alias not in aliasusers.get('keys'):
+    if alias not in aliasses:
         raise Http404()
 
     try:
@@ -174,16 +148,13 @@ def createProtected(request, alias):
     })
 
 @superuser_required
-def editProtected(request, pk):
+def edit_protected(request, pk):
     obj = get_object_or_404(ProtectedAlias, pk=pk)
 
-    aliasusers = caches["aliasusers"]
-    useraliasses = caches["useraliasses"]
+    aliasses = fetch_alias(True)
 
-    if aliasusers.get('keys') is None or useraliasses.get('keys') is None:
-        NeoStrada.FetchData()
 
-    if obj.Alias not in aliasusers.get('keys'):
+    if obj.Alias not in aliasses:
         obj.delete()
         return render(request, 'base.html' , {
             'Message' : 'Alias no longer exists, object deleted',
