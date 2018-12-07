@@ -28,8 +28,12 @@
             {% if user.is_staff %}
                 <td><span class="mif-{{ alias.protected|yesno:"checkmark fg-green,cross fg-red" }}"></span></td>
                 <td>
-                {% if user.is_superuser or request.user in alias.2.Owners.all %}
-                <a href="{% url 'mailalias:adduser' alias.name %}" class="button primary rounded">Edit</a>
+                {% if alias.protected %}
+                    {% if user.is_superuser or request.user in alias.2.Owners.all %}
+                    <a href="{% url 'mailalias:adduser' alias.name %}" class="button primary rounded">Edit</a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'mailalias:adduser' alias.name %}" class="button primary rounded">Edit</a>
                 {% endif %}
             {% if user.is_superuser %}
                 {% if alias.protected %}
