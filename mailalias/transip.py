@@ -58,7 +58,7 @@ class TransipApi:
             if 'td' in str(row):
                 cells = row.find_all('td')
                 mail_group = {
-                    'name' : cells[0].text.replace(' ','').replace('\n',''),
+                    'name' : cells[0].text.replace(' ','').replace('\n','').split('@')[0],
                     'email' : cells[1].text.replace(' ','').replace('\n',''),
                     'count' : int(cells[2].text.replace(' ','').replace('\n','')),
                     'listid' : cells[3].find('input', {'type':'hidden', 'name' : 'mailListId'}).get('value'),
@@ -84,7 +84,7 @@ class TransipApi:
                 cells = row.find_all('td')
                 if cells[0].text.replace(' ', '').replace('\n', '') == name:
                     group = {
-                        'name': cells[0].text.replace(' ', '').replace('\n', ''),
+                        'name': cells[0].text.replace(' ', '').replace('\n', '').split('@')[0],
                         'email': cells[1].text.replace(' ', '').replace('\n', ''),
                         'count': int(cells[2].text.replace(' ', '').replace('\n', '')),
                         'members' : members,
@@ -102,7 +102,7 @@ class TransipApi:
                                               {'id': 'request-token', 'class': 'request-token', 'type': 'hidden'}).get(
             'value')
 
-    def add_to_alias(self, alias, emails, overwrite=False, refetch=False):
+    def add_to_alias(self, alias, emails, overwrite=True, refetch=False):
         if self.groups == {} or not self.logged_in:
             return False
 
