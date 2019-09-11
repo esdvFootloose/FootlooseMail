@@ -1,9 +1,9 @@
-import requests
 import json
-from bs4 import BeautifulSoup
 from time import sleep
-from celery import group
-from mailalias.tasks import task_scrape_members_group
+import aiohttp
+import asyncio
+import requests
+from bs4 import BeautifulSoup, SoupStrainer
 
 class TransipApi:
 
@@ -53,7 +53,7 @@ class TransipApi:
         soup_mailgroup = BeautifulSoup(r_mailgroup.text, 'lxml')
         soup_groups = soup_mailgroup.find('table').find_all('tr')
         self.groups = {}
-        tasks = []
+        mail_groups = []
         for row in soup_groups:
             if 'td' in str(row):
                 cells = row.find_all('td')
@@ -63,12 +63,36 @@ class TransipApi:
                     'count' : int(cells[2].text.replace(' ','').replace('\n','')),
                     'listid' : cells[3].find('input', {'type':'hidden', 'name' : 'mailListId'}).get('value'),
                 }
-                tasks.append(task_scrape_members_group.s(self, mail_group))
-        job = group(tasks)
-        result = job.apply_async()
-        result.join()
-        for mail_group in result.get():
-            self.groups[mail_group['name']] = mail_group
+                mail_groups.append(mail_group)
+
+        async def fetch(url, session, group):
+            async with session.get(url) as response:
+                group['members'] =  await response.text()
+                return group
+
+        async def run(mail_groups):
+            tasks = []
+            async with aiohttp.ClientSession(headers=self.session.headers, cookies=self.session.cookies) as session:
+                for group in mail_groups:
+                    url = self.MAILGROUPLISTURL.format(id=self.ID, listid=group['listid'])
+                    tasks.append(asyncio.ensure_future(fetch(url, session, group)))
+
+                responses = await asyncio.gather(*tasks)
+                await session.close()
+                return responses
+
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        future = asyncio.ensure_future(run(mail_groups))
+        mail_groups = loop.run_until_complete(future)
+
+        only_input_tags = SoupStrainer("input")
+        for group in mail_groups:
+            soup_mailgrouplist = BeautifulSoup(group['members'], 'lxml', parse_only=only_input_tags)
+            group['members'] = [x.get('value') for x in soup_mailgrouplist.find_all('input', {'id': 'add-address'}) if
+                                x.get('value') != '']
+            self.groups[group['name']] = group
+
 
         return self.groups
 
